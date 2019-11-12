@@ -2,13 +2,15 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>My first three.js app</title>
+		<title>Cannibalised Shader Script</title>
 		<style>
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
 		</style>
 	</head>
 	<body>
+		<div id="container"></div>
+
 		<script id="fragment_shader2" type="x-shader/x-fragment">
 			void main( void ) {
 				vec2 position = - 1.0 + 2.0 * vUv;
@@ -23,7 +25,19 @@
 				gl_FragColor = vec4( color * r * 1.5, 1.0 );
 			}
 		</script>
+
+		<script id="vertexShader" type="x-shader/x-vertex">
+			varying vec2 vUv;
+			void main()
+			{
+				vUv = uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+		</script>
+
 		<script src="js/three.js"></script>
+
 		<script>
 			var scene = new THREE.Scene();
             var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -31,7 +45,10 @@
 
             var renderer = new THREE.WebGLRenderer();
             renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( renderer.domElement );
+			document.body.appendChild( renderer.domElement );
+			
+			var container, stats;
+			var uniforms2;
 
             uniforms2 = {
 				"time": { value: 1.0 },
@@ -50,12 +67,22 @@
             camera.position.z = 5;
 
             function animate() {
-	            requestAnimationFrame( animate );
-                cube.rotation.x += 0.05;
-                cube.rotation.y += 0.01;
-	            renderer.render( scene, camera );
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
             }
-            animate();
+			animate();
+			
+			function render() {
+				var delta = clock.getDelta();
+				uniforms2[ "time" ].value = clock.elapsedTime;
+				for ( var i = 0; i < scene.children.length; i ++ ) {
+					var object = scene.children[ i ];
+					object.rotation.y += delta * 0.5 * ( i % 2 ? 1 : - 1 );
+					object.rotation.x += delta * 0.5 * ( i % 2 ? - 1 : 1 );
+				}
+				renderer.render( scene, camera );
+			}
 		</script>
 	</body>
 </html>
