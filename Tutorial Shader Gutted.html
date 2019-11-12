@@ -66,16 +66,9 @@
                     }
                 `;
 
-                const loader = new THREE.TextureLoader();
-                const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/bayer.png');
-                texture.minFilter = THREE.NearestFilter;
-                texture.magFilter = THREE.NearestFilter;
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
                 const uniforms = {
                     iTime: { value: 0 },
                     iResolution:  { value: new THREE.Vector3(1, 1, 1) },
-                    iChannel0: { value: texture },
                 };
                 const material = new THREE.ShaderMaterial({
                     vertexShader,
