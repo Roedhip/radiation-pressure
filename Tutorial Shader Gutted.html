@@ -42,12 +42,10 @@
                     // Normalized pixel coordinates (from 0 to 1)
                     vec2 uv = fragCoord/iResolution.xy;
 
-                    vec3 normal = vNormal;
-
                     // Time varying pixel color
                     float timeWobble = 0.7 + 0.3*cos(iTime);
                     float xWobble = 0.5 + 0.5*cos(6.28*uv.x+iTime);
-                    vec3 col = vec3(uv.x,uv.y,normal.x);
+                    vec3 col = vec3(0.5 + 0.5 * vNormal.x,0.5 + 0.5 * vNormal.y,0.5 + 0.5 * vNormal.z);
 
                     // Output to screen
                     fragColor = vec4(col,1.0);
@@ -114,8 +112,9 @@
                 cubes.forEach((cube, ndx) => {
                     const speed = 1 + ndx * .1;
                     const rot = time * speed;
-                    cube.rotation.x = rot;
-                    cube.rotation.y = rot;
+                    cube.rotation.x = 0.785 * Math.sin(rot);
+                    cube.rotation.y = 0.785 + rot;
+                    cube.rotation.z = 0;
                 });
 
                 uniforms.iTime.value = time;
