@@ -46,14 +46,18 @@
                     // Normalized pixel coordinates (from 0 to 1)
                     vec2 uv = fragCoord/iResolution.xy;
 
-                    // Pre-calculations for SRP
+                    // Calculations for SRP
                     float normdotsun = vNormal.x*iSun.x + vNormal.y*iSun.y + vNormal.z*iSun.z;
-                    float cosangle = -normdotsun; //cos(theta) where theta is angle between normal and incident ray
-                    vec3 reflectionRay = vec3(iSun) - 2.0*normdotsun * vec3(vNormal.x, vNormal.y, vNormal.z); //unit vector of reflection direction
-                    float srpMax = sunPower / lightSpeed; // W/c, all terms after this for SRP will give a value from -1 to 1
+                    vec3 srpScale = vec3(0.0, 0.0, 0.0);
+                    
+                    if(normdotsun > 0.0) {
+                        float cosangle = -normdotsun; //cos(theta) where theta is angle between normal and incident ray
+                        vec3 reflectionRay = vec3(iSun) - 2.0*normdotsun * vec3(vNormal.x, vNormal.y, vNormal.z); //unit vector of reflection direction
+                        float srpMax = sunPower / lightSpeed; // W/c, all terms after this for SRP will give a value from -1 to 1
+                        srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(vNormal.x, vNormal.y, vNormal.z));
+                    }
 
                     // Time varying pixel color
-                    vec3 srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(vNormal.x, vNormal.y, vNormal.z));
                     vec3 col = vec3(0.5+0.5*srpScale.x,0.5+0.5*srpScale.y,0.5+0.5*srpScale.z);
 
                     // Output to screen
@@ -79,7 +83,7 @@
                 const uniforms = {
                     iTime: { value: 0 },
                     iResolution:  { value: new THREE.Vector3(1, 1, 1) },
-                    iSun: { value: new THREE.Vector3(1, 0, 0) },
+                    iSun: { value: new THREE.Vector3(-1, 0, 0) },
                     sunPower: { value: 1368 }, //Hastings and Garrett, 2004, in W/m2
                     matReflectivity: { value: 0.5 },
                     matSpecularity: { value: 0.5 },
