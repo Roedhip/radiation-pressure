@@ -35,6 +35,10 @@
                 uniform vec3 iResolution;
                 uniform float iTime;
                 uniform vec3 iSun;
+                uniform float sunPower;
+                uniform float matReflectivity;
+                uniform float matSpecularity;
+                uniform float lightSpeed;
                 varying vec4 vNormal;
 
                 void mainImage( out vec4 fragColor, in vec2 fragCoord )
@@ -68,7 +72,11 @@
                 const uniforms = {
                     iTime: { value: 0 },
                     iResolution:  { value: new THREE.Vector3(1, 1, 1) },
-                    iSun: { value: new THREE.Vector3(0, 0, 0) },
+                    iSun: { value: new THREE.Vector3(1, 0, 0) },
+                    sunPower: { value: 1368 }, //Hastings and Garrett, 2004, in W/m2
+                    matReflectivity: { value: 0.5 },
+                    matSpecularity: { value: 0.5 },
+                    lightSpeed: { value: 300000000 },
                 };
                 const material = new THREE.ShaderMaterial({
                     vertexShader,
