@@ -11,7 +11,7 @@
 		<div id="info">
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <span id="waterSize"></span> webgl gpgpu water<br/>
 			Look at me, look at me! I am the server now!<br>
-			Press nope. 'W' key toggles wireframe.
+			Press nope. 'W' doesn't toggle wireframe.
 		</div>
 
 
@@ -278,18 +278,6 @@
 
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-
-				document.addEventListener( 'keydown', function ( event ) {
-
-					// W Pressed: Toggle wireframe
-					if ( event.keyCode === 87 ) {
-
-						waterMesh.material.wireframe = ! waterMesh.material.wireframe;
-						waterMesh.material.needsUpdate = true;
-
-					}
-
-				}, false );
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
