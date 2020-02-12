@@ -10,8 +10,7 @@
         </head>
     <body>
         <canvas id="c"></canvas>
-        <p id="srpreadout">Words</p>
-        
+        <p id="srpreadout">Warning! The Javascript code has not changed this text!</p>
 
         <script type="module">
             import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
@@ -98,7 +97,7 @@
                     uniforms,
                 });
                 
-                document.getElementById("srpreadout").innerHTML = "Different words!";
+                document.getElementById("srpreadout").innerHTML = "Warning! The render function has not overwritten this text!";
 
                 var globalXaxis = new THREE.Vector3(1,0,0);
                 var globalYaxis = new THREE.Vector3(0,1,0);
@@ -151,7 +150,9 @@
                 renderer.render(scene, camera);
 
                 requestAnimationFrame(render);
-            }
+
+                document.getElementById("srpreadout").innerHTML = "Time: " + time;
+                }
 
             requestAnimationFrame(render);
             }
