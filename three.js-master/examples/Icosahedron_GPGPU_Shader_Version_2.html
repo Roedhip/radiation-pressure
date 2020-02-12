@@ -52,7 +52,7 @@
                     float normdotsun = vNormal.x*iSun.x + vNormal.y*iSun.y + vNormal.z*iSun.z;
                     vec3 srpScale = vec3(0.0, 0.0, 0.0);
                     
-                    if(normdotsun > 0.0) {
+                    if(normdotsun < 0.0) {
                         float cosangle = -normdotsun; //cos(theta) where theta is angle between normal and incident ray
                         vec3 reflectionRay = vec3(iSun) - 2.0*normdotsun * vec3(vNormal.x, vNormal.y, vNormal.z); //unit vector of reflection direction
                         float srpMax = sunPower / lightSpeed; // W/c, all terms after this for SRP will give a value from -1 to 1
@@ -143,17 +143,14 @@
                     icosahedron.rotation.x = 0.785*Math.sin(rot);
                     icosahedron.rotation.y = rot;
                     icosahedron.rotation.z = 0;
+                    document.getElementById("srpreadout").innerHTML = "Rotation in x: " + icosahedron.rotation.x;
                 });
-
-                const labelContainerElem = document.querySelector('srpreadout');
 
                 uniforms.iTime.value = time;
 
                 renderer.render(scene, camera);
 
                 requestAnimationFrame(render);
-
-                document.getElementById("srpreadout").innerHTML = "Time: " + time;
                 }
 
             requestAnimationFrame(render);
