@@ -103,18 +103,9 @@
                 var globalYaxis = new THREE.Vector3(0,1,0);
                 var globalZaxis = new THREE.Vector3(0,0,1);
 
-                function makeInstance(geometry, x) {
-                    const icosahedron = new THREE.Mesh(geometry, material);
+
+                    var icosahedron = new THREE.Mesh(geometry, material);
                     scene.add(icosahedron);
-
-                    icosahedron.position.x = x;
-
-                    return icosahedron;
-                }
-
-                const icosahedrons = [
-                    makeInstance(geometry,  0),
-                ];
 
                 function resizeRendererToDisplaySize(renderer) {
                     const canvas = renderer.domElement;
@@ -137,14 +128,15 @@
                     camera.aspect = canvas.clientWidth / canvas.clientHeight;
                     camera.updateProjectionMatrix();
                 }
-                icosahedrons.forEach((icosahedron, ndx) => {
-                    const speed = 1 + ndx * .1;
+
+                    const speed = 1;
                     const rot = time * speed;
                     icosahedron.rotation.x = 0.785*Math.sin(rot);
                     icosahedron.rotation.y = rot;
                     icosahedron.rotation.z = 0;
+                    const test = icosahedron.faces;
                     document.getElementById("srpreadout").innerHTML = "Rotation in x: " + icosahedron.rotation.x;
-                });
+                
 
                 uniforms.iTime.value = time;
 
