@@ -129,13 +129,13 @@
                     camera.updateProjectionMatrix();
                 }
 
-                    const speed = 1;
-                    const rot = time * speed;
-                    icosahedron.rotation.x = 0.785*Math.sin(rot);
-                    icosahedron.rotation.y = rot;
-                    icosahedron.rotation.z = 0;
-                    const test = icosahedron.faces;
-                    document.getElementById("srpreadout").innerHTML = "Rotation in x: " + icosahedron.rotation.x;
+                const speed = 1;
+                const rot = time * speed;
+                icosahedron.rotation.x = 0.785*Math.sin(rot);
+                icosahedron.rotation.y = rot;
+                icosahedron.rotation.z = 0;
+                const test = icosahedron.geometry.faces[0].normal.x;
+                document.getElementById("srpreadout").innerHTML = "Rotation in x: " + test;
                 
 
                 uniforms.iTime.value = time;
