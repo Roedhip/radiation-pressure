@@ -14,6 +14,7 @@
 
         <script type="module">
             import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
+            import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
             //The plan with this version is to run shader as before, but then use GPUComputationRenderer to read off that shader.
 
             function main() {
@@ -150,6 +151,8 @@
                 //var gpuCompute = new GPUComputationRender( 20, 1, renderer);
 
                 //var GPUTexture = gpuCompute.createTexture();
+
+
 
                 uniforms.iTime.value = time;
 
