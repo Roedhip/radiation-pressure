@@ -135,9 +135,14 @@
                 icosahedron.rotation.y = rot;
                 icosahedron.rotation.z = 0;
 
-
+                const normTexture = [];
                 const geoFaces = icosahedron.geometry.faces.length;
-                const faceZeroNormal = icosahedron.geometry.faces[0].normal;
+                for (let face = 0; face < geoFaces; face++) {
+                    const hold = icosahedron.geometry.faces[face].normal;
+                    let newLength = normTexture.push(hold);
+                };
+                const faceZeroNormal = normTexture[0];
+
                 document.getElementById("srpreadout").innerHTML = "Number of Faces: " + geoFaces + " Example Normal x-Component: " + faceZeroNormal.x;
                 
 
