@@ -134,8 +134,11 @@
                 icosahedron.rotation.x = 0.785*Math.sin(rot);
                 icosahedron.rotation.y = rot;
                 icosahedron.rotation.z = 0;
-                const test = icosahedron.geometry.faces[0].normal.x;
-                document.getElementById("srpreadout").innerHTML = "Rotation in x: " + test;
+
+
+                const geoFaces = icosahedron.geometry.faces.length;
+                const faceZeroNormal = icosahedron.geometry.faces[0].normal;
+                document.getElementById("srpreadout").innerHTML = "Number of Faces: " + geoFaces + " Example Normal x-Component: " + faceZeroNormal.x;
                 
 
                 uniforms.iTime.value = time;
