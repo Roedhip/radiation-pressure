@@ -14,7 +14,7 @@
 
         <script type="module">
             import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
-            //import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
+            import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
             //The plan with this version is to run shader as before, but then use GPUComputationRenderer to read off that shader.
 
             function main() {
@@ -148,38 +148,42 @@
 
                 document.getElementById("srpreadout").innerHTML = "Example Normal: " + faceZeroNormalv2.x + " Example Normal: " + faceZeroNormalv1.x;
                 
-                //var gpuCompute = new GPUComputationRender( 20, 1, renderer);
+                function initComputeRenderer() {
+                    var gpuCompute = new GPUComputationRender( 20, 1, renderer);
 
-                //var GPUTexture = gpuCompute.createTexture();
+                    var GPUTexture = gpuCompute.createTexture();
 
-                //GPUTexture = normTexture;
+                    GPUTexture = normTexture;
 
-                //var SRP = gpuCompute.addVariable( "SRP", fragmentShaderSRP, normTexture );
+                    var SRP = gpuCompute.addVariable( "SRP", fragmentShaderSRP, normTexture );
 
-                //gpuCompute.setVariableDependencies( SRP, [ SRP ] );
+                    gpuCompute.setVariableDependencies( SRP, [ SRP ] );
 
-                //SRPUniforms = SRP.material.uniforms;
+                    SRPUniforms = SRP.material.uniforms;
 
-                //SRPUniforms[ "sunPower" ] = { value: 1368.0 };
+                    SRPUniforms[ "sunPower" ] = { value: 1368.0 };
 
-                //var error = gpuCompute.init();
+                    var error = gpuCompute.init();
 
-                //if ( error !== null ) {
+                    if ( error !== null ) {
 
-					//console.error( error );
+				    	console.error( error );
 
-                //}
+                    }
+                }
 
                 uniforms.iTime.value = time;
 
                 renderer.render(scene, camera);
+
+                //initComputeRenderer();
 
                 requestAnimationFrame(render);
                 }
 
             requestAnimationFrame(render);
             }
-
+            
             main();
         </script>
     </body>
