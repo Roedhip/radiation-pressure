@@ -181,7 +181,7 @@
                 const faceZeroNormalv1 = normTexture[19];
                 const faceZeroNormalv2 = icosahedron.geometry.faces[19].normal;
 
-                document.getElementById("srpreadout").innerHTML = "Example Normal: " + faceZeroNormalv2.x + " Example Normal: " + faceZeroNormalv1.x;
+                document.getElementById("srpreadout").innerHTML = "Example Normal: " + faceZeroNormalv2.x + " Time: " + time;
                 
                 function initComputeRenderer() {
                     var gpuCompute = new GPUComputationRender( 20, 1, renderer);
