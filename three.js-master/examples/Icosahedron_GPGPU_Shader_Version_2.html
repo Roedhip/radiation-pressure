@@ -12,6 +12,40 @@
         <canvas id="c"></canvas>
         <p id="srpreadout">Warning! The Javascript code has not changed this text!</p>
 
+        <script id="srpShader" type="x-shader/x-fragment">
+
+            #include <common>
+
+            uniform float sunPower;
+            uniform float matReflectivity;
+            uniform float matSpecularity;
+            uniform float lightSpeed;
+
+            void main () {
+
+                vec2 cellSize = 1.0/resolution.xy;
+
+                vec2 uv = gl_FragCoord.xy * cellSize;
+
+                // Calculations for SRP
+                float normdotsun = vNormal.x*iSun.x + vNormal.y*iSun.y + vNormal.z*iSun.z;
+                vec3 srpScale = vec3(0.0, 0.0, 0.0);
+                    
+                if(normdotsun > 0.0) {
+                    float cosangle = -normdotsun; //cos(theta) where theta is angle between normal and incident ray
+                    vec3 reflectionRay = vec3(iSun) - 2.0*normdotsun * vec3(vNormal.x, vNormal.y, vNormal.z); //unit vector of reflection direction
+                    float srpMax = sunPower / lightSpeed; // W/c, all terms after this for SRP will give a value from -1 to 1
+                    srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(vNormal.x, vNormal.y, vNormal.z));
+                }
+
+                // Time varying pixel color
+                vec3 col = vec3(0.5+0.5*srpScale.x,0.5+0.5*srpScale.y,0.5+0.5*srpScale.z);
+
+                gl_FragColor = vec4(col,1.0);
+            }
+        
+        </script>
+
         <script type="module">
             import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
             import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
@@ -128,6 +162,7 @@
                     const canvas = renderer.domElement;
                     camera.aspect = canvas.clientWidth / canvas.clientHeight;
                     camera.updateProjectionMatrix();
+                    //gpuCompute.compute();
                 }
 
                 const speed = 1;
@@ -155,13 +190,17 @@
 
                     GPUTexture = normTexture;
 
-                    var SRP = gpuCompute.addVariable( "SRP", fragmentShaderSRP, normTexture );
+                    var SRP = gpuCompute.addVariable( "SRP", srpShader, normTexture );
 
                     gpuCompute.setVariableDependencies( SRP, [ SRP ] );
 
                     SRPUniforms = SRP.material.uniforms;
 
                     SRPUniforms[ "sunPower" ] = { value: 1368.0 };
+                    SRPUniforms[ "matReflectivity" ] = { value: 0.5 };
+                    SRPUniforms[ "matSpecularity" ] = { value: 0.5 };
+                    SRPUniforms[ "lightSpeed" ] = { value: 0.5 };
+                    SRPUniforms[ "iSun" ] = { value: new THREE.Vector3(-1, 0, 0) };
 
                     var error = gpuCompute.init();
 
