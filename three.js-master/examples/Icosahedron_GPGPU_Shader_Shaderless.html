@@ -66,11 +66,12 @@
                 const icoRadius = 1;
                 const icoDetail = 0;
                 const geometry = new THREE.IcosahedronGeometry(icoRadius, icoDetail);
+                const material = new THREE.MeshBasicMaterial( { color: 0x1066ad } );
                 
                 document.getElementById("srpreadout").innerHTML = "Warning! The render function has not overwritten this text!";
 
-                //var icosahedron = new THREE.Mesh(geometry, material);
-                //scene.add(icosahedron);
+                var icosahedron = new THREE.Mesh(geometry, material);
+                scene.add(icosahedron);
 
                 function resizeRendererToDisplaySize(renderer) {
                     const canvas = renderer.domElement;
@@ -93,21 +94,21 @@
                     //gpuCompute.compute();
                 }
 
-                //const speed = 1;
-                //const rot = time * speed;
-                //icosahedron.rotation.x = 0.785*Math.sin(rot);
-                //icosahedron.rotation.y = rot;
-                //icosahedron.rotation.z = 0;
+                const speed = 1;
+                const rot = time * speed;
+                icosahedron.rotation.x = 0.785*Math.sin(rot);
+                icosahedron.rotation.y = rot;
+                icosahedron.rotation.z = 0;
 
-                //const normTexture = [];
-                //const geoFaces = icosahedron.geometry.faces.length;
-                //for (let face = 0; face < geoFaces; face++) {
-                    //const hold = icosahedron.geometry.faces[face].normal;
-                    //let newLength = normTexture.push(hold);
-                //};
+                const normTexture = [];
+                const geoFaces = icosahedron.geometry.faces.length;
+                for (let face = 0; face < geoFaces; face++) {
+                    const hold = icosahedron.geometry.faces[face].normal;
+                    let newLength = normTexture.push(hold);
+                };
 
-                //const faceZeroNormalv1 = normTexture[19];
-                //const faceZeroNormalv2 = icosahedron.geometry.faces[19].normal;
+                const faceZeroNormalv1 = normTexture[19];
+                const faceZeroNormalv2 = icosahedron.geometry.faces[19].normal;
 
                 document.getElementById("srpreadout").innerHTML = " Time: " + time;
                 
@@ -138,8 +139,6 @@
 
                     }
                 }
-
-                uniforms.iTime.value = time;
 
                 renderer.render(scene, camera);
 
