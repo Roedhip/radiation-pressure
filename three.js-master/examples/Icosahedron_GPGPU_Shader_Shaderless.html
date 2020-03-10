@@ -28,6 +28,8 @@
 
                 vec2 uv = gl_FragCoord.xy * cellSize;
 
+                vec4 vNormal = texture2D( dtNormal, uv );
+
                 // Calculations for SRP
                 float normdotsun = vNormal.x*iSun.x + vNormal.y*iSun.y + vNormal.z*iSun.z;
                 vec3 srpScale = vec3(0.0, 0.0, 0.0);
@@ -68,8 +70,6 @@
                 const icoDetail = 0;
                 const geometry = new THREE.IcosahedronGeometry(icoRadius, icoDetail);
                 const material = new THREE.MeshBasicMaterial( { color: 0x1066ad } );
-                
-                document.getElementById("srpreadout").innerHTML = "Warning! The render function has not overwritten this text!";
 
                 var icosahedron = new THREE.Mesh(geometry, material);
                 scene.add(icosahedron);
@@ -78,28 +78,31 @@
                 var normalVariable;
                 var SRPVariable;
                 var SRPUniforms;
+
+                var WIDTHONE = 20;
+                var WIDTHTWO = 1;
                 
                 function initComputeRenderer() {
-                    gpuCompute = new GPUComputationRender( 20, 1, renderer);
+                    gpuCompute = new GPUComputationRender( WIDTHONE, WIDTHTWO, renderer);
 
                     var dtNormal = gpuCompute.createTexture();
                     var dtSRP = gpuCompute.createTexture();
 
                     fillTexture(dtNormal);
 
-                    normalVariable = gpuCompute.addVariable( "textureNormal", document.getElementById(' SRPshader ').textContent, dtNormal );
                     SRPVariable = gpuCompute.addVariable( "textureSRP", document.getElementById(' SRPshader ').textContent, dtSRP );
 
                     gpuCompute.setVariableDependencies( normalVariable, [ normalVariable ] );
                     gpuCompute.setVariableDependencies( SRPVariable, [ normalVariable, SRPVariable ] );
 
-                    SRPUniforms = SRPVariable.material.uniforms;
-
-                    SRPUniforms[ "sunPower" ] = { value: 1368.0 };
-                    SRPUniforms[ "matReflectivity" ] = { value: 0.5 };
-                    SRPUniforms[ "matSpecularity" ] = { value: 0.5 };
-                    SRPUniforms[ "lightSpeed" ] = { value: 0.5 };
-                    SRPUniforms[ "iSun" ] = { value: new THREE.Vector3(-1, 0, 0) };
+                    SRPUniforms = {
+                        "sunPower": { value: 1368.0 },
+                        "matReflectivity": { value: 0.5 },
+                        "matSpecularity": { value: 0.5 },
+                        "lightSpeed": { value: 0.5 },
+                        "iSun": { value: new THREE.Vector3(-1, 0, 0) },
+                        "dtNormal": { value: null }
+                    };
 
                     var error = gpuCompute.init();
 
@@ -163,6 +166,8 @@
                     }
 
                 //initComputeRenderer();
+
+                document.getElementById("srpreadout").innerHTML = "Warning! The render function has not overwritten this text!";
 
                 requestAnimationFrame(render);
             }
