@@ -20,6 +20,7 @@
             uniform float matReflectivity;
             uniform float matSpecularity;
             uniform float lightSpeed;
+            uniform vec3 iSun;
 
             void main () {
 
@@ -53,7 +54,7 @@
 
             function main() {
                 const canvas = document.querySelector('#c');
-                const renderer = new THREE.WebGLRenderer({canvas});
+                var renderer = new THREE.WebGLRenderer({canvas});
 
                 const fov = 75;
                 const aspect = 2;  // the canvas default
@@ -73,6 +74,57 @@
                 var icosahedron = new THREE.Mesh(geometry, material);
                 scene.add(icosahedron);
 
+                var gpuCompute;
+                var normalVariable;
+                var SRPVariable;
+                var SRPUniforms;
+                
+                function initComputeRenderer() {
+                    gpuCompute = new GPUComputationRender( 20, 1, renderer);
+
+                    var dtNormal = gpuCompute.createTexture();
+                    var dtSRP = gpuCompute.createTexture();
+
+                    fillTexture(dtNormal);
+
+                    normalVariable = gpuCompute.addVariable( "textureNormal", document.getElementById(' SRPshader ').textContent, dtNormal );
+                    SRPVariable = gpuCompute.addVariable( "textureSRP", document.getElementById(' SRPshader ').textContent, dtSRP );
+
+                    gpuCompute.setVariableDependencies( normalVariable, [ normalVariable ] );
+                    gpuCompute.setVariableDependencies( SRPVariable, [ normalVariable, SRPVariable ] );
+
+                    SRPUniforms = SRPVariable.material.uniforms;
+
+                    SRPUniforms[ "sunPower" ] = { value: 1368.0 };
+                    SRPUniforms[ "matReflectivity" ] = { value: 0.5 };
+                    SRPUniforms[ "matSpecularity" ] = { value: 0.5 };
+                    SRPUniforms[ "lightSpeed" ] = { value: 0.5 };
+                    SRPUniforms[ "iSun" ] = { value: new THREE.Vector3(-1, 0, 0) };
+
+                    var error = gpuCompute.init();
+
+                    if ( error !== null ) {
+
+				    	console.error( error );
+
+                    }
+                }
+
+                function fillTexture( texture ) {
+
+				    var theArray = texture.image.data;
+
+				    for ( var k = 0, kl = theArray.length; k < kl; k += 4 ) {
+
+					    theArray[ k + 0 ] = icosahedron.geometry.faces[0].normal.x;
+					    theArray[ k + 1 ] = icosahedron.geometry.faces[0].normal.y;
+					    theArray[ k + 2 ] = icosahedron.geometry.faces[0].normal.z;
+					    theArray[ k + 3 ] = 1;
+
+				    }
+
+			    }
+
                 function resizeRendererToDisplaySize(renderer) {
                     const canvas = renderer.domElement;
                     const width = canvas.clientWidth;
@@ -91,63 +143,28 @@
                     const canvas = renderer.domElement;
                     camera.aspect = canvas.clientWidth / canvas.clientHeight;
                     camera.updateProjectionMatrix();
-                    //gpuCompute.compute();
-                }
-
-                const speed = 1;
-                const rot = time * speed;
-                icosahedron.rotation.x = 0.785*Math.sin(rot);
-                icosahedron.rotation.y = rot;
-                icosahedron.rotation.z = 0;
-
-                const normTexture = [];
-                const geoFaces = icosahedron.geometry.faces.length;
-                for (let face = 0; face < geoFaces; face++) {
-                    const hold = icosahedron.geometry.faces[face].normal;
-                    let newLength = normTexture.push(hold);
-                };
-
-                const faceZeroNormalv1 = normTexture[19];
-                const faceZeroNormalv2 = icosahedron.geometry.faces[19].normal;
-
-                document.getElementById("srpreadout").innerHTML = " Time: " + time;
-                
-                function initComputeRenderer() {
-                    var gpuCompute = new GPUComputationRender( 20, 1, renderer);
-
-                    var GPUTexture = gpuCompute.createTexture();
-
-                    GPUTexture = normTexture;
-
-                    var SRP = gpuCompute.addVariable( "SRP", srpShader, normTexture );
-
-                    gpuCompute.setVariableDependencies( SRP, [ SRP ] );
-
-                    SRPUniforms = SRP.material.uniforms;
-
-                    SRPUniforms[ "sunPower" ] = { value: 1368.0 };
-                    SRPUniforms[ "matReflectivity" ] = { value: 0.5 };
-                    SRPUniforms[ "matSpecularity" ] = { value: 0.5 };
-                    SRPUniforms[ "lightSpeed" ] = { value: 0.5 };
-                    SRPUniforms[ "iSun" ] = { value: new THREE.Vector3(-1, 0, 0) };
-
-                    var error = gpuCompute.init();
-
-                    if ( error !== null ) {
-
-				    	console.error( error );
-
                     }
-                }
 
-                renderer.render(scene, camera);
+                    const speed = 1;
+                    const rot = time * speed;
+                    icosahedron.rotation.x = 0.785*Math.sin(rot);
+                    icosahedron.rotation.y = rot;
+                    icosahedron.rotation.z = 0;
+
+                    document.getElementById("srpreadout").innerHTML = " Time: " + time;
+
+                    //gpuCompute.compute();
+
+                    //SRPUniforms[ "SRPVariable" ].value = gpuCompute.getCurrentRenderTarget( SRPVariable ).texture;
+
+                    renderer.render(scene, camera);
+
+                    requestAnimationFrame(render);
+                    }
 
                 //initComputeRenderer();
 
                 requestAnimationFrame(render);
-                }
-
-            requestAnimationFrame(render);
             }
             
             main();
