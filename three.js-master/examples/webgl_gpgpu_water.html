@@ -593,6 +593,7 @@
 						var v = 1 - ( 0.5 * sphere.position.z / BOUNDS_HALF + 0.5 );
 						readWaterLevelShader.uniforms[ "point1" ].value.set( u, v );
 						gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
+						// The most important thing ever!!!!!
 
 						renderer.readRenderTargetPixels( readWaterLevelRenderTarget, 0, 0, 4, 1, readWaterLevelImage );
 						var pixels = new Float32Array( readWaterLevelImage.buffer );

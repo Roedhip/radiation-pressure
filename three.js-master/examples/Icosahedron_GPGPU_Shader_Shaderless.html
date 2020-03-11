@@ -52,6 +52,7 @@
         <script type="module">
             import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
             import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
+
             //The plan with this version is to run shader as before, but then use GPUComputationRenderer to read off that shader.
 
             function main() {
@@ -83,17 +84,25 @@
                 var WIDTHTWO = 1;
                 
                 function initComputeRenderer() {
+                    document.getElementById("srpreadout").innerHTML = "2";
                     gpuCompute = new GPUComputationRender( WIDTHONE, WIDTHTWO, renderer);
+                    document.getElementById("srpreadout").innerHTML = "3";
 
                     var dtNormal = gpuCompute.createTexture();
+                    document.getElementById("srpreadout").innerHTML = "4";
                     var dtSRP = gpuCompute.createTexture();
+                    document.getElementById("srpreadout").innerHTML = "5";
 
                     fillTexture(dtNormal);
+                    document.getElementById("srpreadout").innerHTML = "6";
 
                     SRPVariable = gpuCompute.addVariable( "textureSRP", document.getElementById(' SRPshader ').textContent, dtSRP );
+                    document.getElementById("srpreadout").innerHTML = "7";
 
                     gpuCompute.setVariableDependencies( normalVariable, [ normalVariable ] );
+                    document.getElementById("srpreadout").innerHTML = "8";
                     gpuCompute.setVariableDependencies( SRPVariable, [ normalVariable, SRPVariable ] );
+                    document.getElementById("srpreadout").innerHTML = "9";
 
                     SRPUniforms = {
                         "sunPower": { value: 1368.0 },
@@ -103,14 +112,17 @@
                         "iSun": { value: new THREE.Vector3(-1, 0, 0) },
                         "dtNormal": { value: null }
                     };
+                    document.getElementById("srpreadout").innerHTML = "10";
 
                     var error = gpuCompute.init();
+                    document.getElementById("srpreadout").innerHTML = "11";
 
                     if ( error !== null ) {
 
 				    	console.error( error );
 
                     }
+                    document.getElementById("srpreadout").innerHTML = "12";
                 }
 
                 function fillTexture( texture ) {
@@ -165,7 +177,10 @@
                     requestAnimationFrame(render);
                     }
 
-                //initComputeRenderer();
+                
+                document.getElementById("srpreadout").innerHTML = "1";
+
+                initComputeRenderer();
 
                 document.getElementById("srpreadout").innerHTML = "Warning! The render function has not overwritten this text!";
 

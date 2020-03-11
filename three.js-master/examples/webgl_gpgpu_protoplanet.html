@@ -16,6 +16,7 @@
 		<div id="info">
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <span id="protoplanets"></span> webgl gpgpu debris
 		</div>
+		<p id="srpvalue">Warning! The Javascript code has not changed this text!</p>
 
 		<!-- Fragment shader for protoplanet's position -->
 		<script id="computeShaderPosition" type="x-shader/x-fragment">
@@ -543,6 +544,8 @@
 
 				particleUniforms[ "texturePosition" ].value = gpuCompute.getCurrentRenderTarget( positionVariable ).texture;
 				particleUniforms[ "textureVelocity" ].value = gpuCompute.getCurrentRenderTarget( velocityVariable ).texture;
+				var steven = particleUniforms[ "texturePosition" ].image;
+				document.getElementById("srpvalue").innerHTML = steven;
 
 				renderer.render( scene, camera );
 
