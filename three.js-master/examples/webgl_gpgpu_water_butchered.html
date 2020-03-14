@@ -446,35 +446,18 @@
 
 				readWaterLevelShader.uniforms[ "levelTexture" ].value = currentRenderTarget.texture;
 
-				for ( var i = 0; i < NUM_SPHERES; i ++ ) {
+				// Read water level and orientation
+				var u = 0.5 * 90 / BOUNDS_HALF + 0.5;
+				var v = 1 - ( 0.5 * 90 / BOUNDS_HALF + 0.5 );
+				readWaterLevelShader.uniforms[ "point1" ].value.set( u, v );
+				gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
+				// The most important thing ever!!!!!
 
-					var sphere = spheres[ i ];
+				renderer.readRenderTargetPixels( readWaterLevelRenderTarget, 0, 0, 4, 1, readWaterLevelImage );
+				var pixels = new Float32Array( readWaterLevelImage.buffer );
 
-					if ( sphere ) {
-
-						// Read water level and orientation
-						var u = 0.5 * 90 / BOUNDS_HALF + 0.5;
-						var v = 1 - ( 0.5 * 90 / BOUNDS_HALF + 0.5 );
-						readWaterLevelShader.uniforms[ "point1" ].value.set( u, v );
-						gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
-						// The most important thing ever!!!!!
-
-						renderer.readRenderTargetPixels( readWaterLevelRenderTarget, 0, 0, 4, 1, readWaterLevelImage );
-						var pixels = new Float32Array( readWaterLevelImage.buffer );
-
-						// Get orientation
-						waterNormal.set( pixels[ 1 ], 0, - pixels[ 2 ] );
-
-						var pos = sphere.position;
-
-						// Set height
-						pos.y = pixels[ 0 ];
-
-						document.getElementById("srpreadout").innerHTML = pos.y;
-
-					}
-
-				}
+				// Set height
+				document.getElementById("srpreadout").innerHTML = pixels[0];
 
 			}
 
