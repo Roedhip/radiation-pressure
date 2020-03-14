@@ -20,15 +20,6 @@
 
 			#include <common>
 
-			// defining power from sunlight in here because uniforms are effort
-			float sunPower = 1368.0;
-			// defining reflectivity of the material
-			float matReflectivity = 0.5;
-			// defining specularity of the material
-			float matSpecularity = 0.5;
-			// giving value for light speed
-			float lightSpeed = 300000000.0;
-
 			void main()	{
 
 				vec2 cellSize = 1.0 / resolution.xy;
@@ -99,23 +90,45 @@
 				return vec4( byte4, byte3, byte2, byte1 );
 			}
 
+			// defining power from sunlight in here because uniforms are effort
+			float sunPower = 1368.0;
+			// defining reflectivity of the material
+			float matReflectivity = 0.5;
+			// defining specularity of the material
+			float matSpecularity = 0.5;
+			// giving value for light speed
+			float lightSpeed = 300000000.0;
+			// direction of sunlight (of, not to)
+			vec3 iSun = vec3(-1.0, 0.0, 0.0);
+
 			void main()	{
 
 				vec2 cellSize = 1.0 / resolution.xy;
 
 				vec4 waterLevel = texture2D( levelTexture, point1 );
 
+				float normdotsun = waterLevel.x*iSun.x + waterLevel.y*iSun.y + waterLevel.z*iSun.z;
+
+				vec3 srpScale;
+
+				if (normdotsun < 0.0) {
+					float cosangle = -normdotsun;
+					vec3 reflectionRay = vec3(iSun) - 2.0 * normdotsun * vec3(waterLevel.x, waterLevel.y, waterLevel.z);
+					float srpMax = sunPower/lightSpeed;
+					srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(waterLevel.x, waterLevel.y, waterLevel.z));
+				}
+
 				if ( gl_FragCoord.x < 1.5 ) {
 
-					gl_FragColor = encode_float( waterLevel.x );
+					gl_FragColor = encode_float( srpScale.x );
 
 				} else if ( gl_FragCoord.x < 2.5 ) {
 
-					gl_FragColor = encode_float( waterLevel.y );
+					gl_FragColor = encode_float( srpScale.y );
 
 				} else if ( gl_FragCoord.x < 3.5 ) {
 
-					gl_FragColor = encode_float( waterLevel.z );
+					gl_FragColor = encode_float( srpScale.z );
 
 				} else {
 
@@ -272,7 +285,7 @@
 				// Read water level and orientation
 				var u = 0.5 * 1 / BOUNDS_HALF + 0.5;
 				var v = 1 - ( 0.5 * 15 / BOUNDS_HALF + 0.5 );
-				readWaterLevelShader.uniforms[ "point1" ].value.set( 0.2, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
+				readWaterLevelShader.uniforms[ "point1" ].value.set( 0.95, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
 				gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
 				// The most important thing ever!!!!!
 
@@ -280,7 +293,7 @@
 				var pixels = new Float32Array( readWaterLevelImage.buffer );
 
 				// Set height
-				document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2];
+				document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2] + " // " + pixels[3];
 
 			}
 
