@@ -453,8 +453,8 @@
 					if ( sphere ) {
 
 						// Read water level and orientation
-						var u = 0.5 * sphere.position.x / BOUNDS_HALF + 0.5;
-						var v = 1 - ( 0.5 * sphere.position.z / BOUNDS_HALF + 0.5 );
+						var u = 0.5 * 90 / BOUNDS_HALF + 0.5;
+						var v = 1 - ( 0.5 * 90 / BOUNDS_HALF + 0.5 );
 						readWaterLevelShader.uniforms[ "point1" ].value.set( u, v );
 						gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
 						// The most important thing ever!!!!!
@@ -471,36 +471,6 @@
 						pos.y = pixels[ 0 ];
 
 						document.getElementById("srpreadout").innerHTML = pos.y;
-
-						// Move sphere
-						waterNormal.multiplyScalar( 0.1 );
-						sphere.userData.velocity.add( waterNormal );
-						sphere.userData.velocity.multiplyScalar( 0.998 );
-						pos.add( sphere.userData.velocity );
-
-						if ( pos.x < - BOUNDS_HALF ) {
-
-							pos.x = - BOUNDS_HALF + 0.001;
-							sphere.userData.velocity.x *= - 0.3;
-
-						} else if ( pos.x > BOUNDS_HALF ) {
-
-							pos.x = BOUNDS_HALF - 0.001;
-							sphere.userData.velocity.x *= - 0.3;
-
-						}
-
-						if ( pos.z < - BOUNDS_HALF ) {
-
-							pos.z = - BOUNDS_HALF + 0.001;
-							sphere.userData.velocity.z *= - 0.3;
-
-						} else if ( pos.z > BOUNDS_HALF ) {
-
-							pos.z = BOUNDS_HALF - 0.001;
-							sphere.userData.velocity.z *= - 0.3;
-
-						}
 
 					}
 
