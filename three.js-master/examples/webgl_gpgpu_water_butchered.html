@@ -241,7 +241,7 @@
 				var pixels = texture.image.data;
 
 				var p = 0;
-				for ( var j = 0; j < WIDTH; j ++ ) {
+				for ( var j = 0; j < 20; j ++ ) {
 
 					pixels[ p + 0 ] = geometry.geometry.faces[j].normal.x;
 					pixels[ p + 1 ] = geometry.geometry.faces[j].normal.y;
@@ -263,7 +263,7 @@
 				// Read water level and orientation
 				var u = 0.5 * 1 / BOUNDS_HALF + 0.5;
 				var v = 1 - ( 0.5 * 15 / BOUNDS_HALF + 0.5 );
-				readWaterLevelShader.uniforms[ "point1" ].value.set( 3.5, 0.5 );
+				readWaterLevelShader.uniforms[ "point1" ].value.set( 0.2, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
 				gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
 				// The most important thing ever!!!!!
 
