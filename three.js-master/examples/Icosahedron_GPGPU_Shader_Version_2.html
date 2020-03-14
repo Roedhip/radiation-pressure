@@ -179,9 +179,9 @@
                 };
 
                 const faceZeroNormalv1 = normTexture[19];
-                const faceZeroNormalv2 = icosahedron.geometry.faces[19].normal;
+                const faceZeroNormalv2 = icosahedron.geometry.faces[1].normal;
 
-                document.getElementById("srpreadout").innerHTML = "Example Normal: " + faceZeroNormalv2.x + " Time: " + time;
+                document.getElementById("srpreadout").innerHTML = "Example Normal: " + faceZeroNormalv2.x + "/ " + faceZeroNormalv2.y + " / " + faceZeroNormalv2.z + " Time: " + time;
                 
                 function initComputeRenderer() {
                     var gpuCompute = new GPUComputationRender( 20, 1, renderer);
