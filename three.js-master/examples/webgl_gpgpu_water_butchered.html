@@ -93,9 +93,9 @@
 			// defining power from sunlight in here because uniforms are effort
 			float sunPower = 1368.0;
 			// defining reflectivity of the material
-			float matReflectivity = 0.5;
+			float matReflectivity = 1.0;
 			// defining specularity of the material
-			float matSpecularity = 0.5;
+			float matSpecularity = 1.0;
 			// giving value for light speed
 			float lightSpeed = 300000000.0;
 			// direction of sunlight (of, not to)
@@ -151,7 +151,7 @@
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
 
 			// Texture width for simulation
-			var WIDTH = 20;
+			var WIDTH = 12;
 
 			// Water size in system units
 			var BOUNDS = 512;
@@ -207,7 +207,7 @@
 
 				var icoRadius = 1;
                 var icoDetail = 0;
-                var geometry = new THREE.IcosahedronGeometry(icoRadius, icoDetail);
+                var geometry = new THREE.BoxGeometry(1, 1, 1);
                 var material = new THREE.MeshBasicMaterial( { color: 0x1066ad } );
 
                 var icosahedron = new THREE.Mesh(geometry, material);
@@ -296,7 +296,7 @@
 				// Read water level and orientation
 				var u = 0.5 * 1 / BOUNDS_HALF + 0.5;
 				var v = 1 - ( 0.5 * 15 / BOUNDS_HALF + 0.5 );
-				readWaterLevelShader.uniforms[ "point1" ].value.set( 0.95, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
+				readWaterLevelShader.uniforms[ "point1" ].value.set( 0.2, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
 				gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
 				// The most important thing ever!!!!!
 
