@@ -230,7 +230,6 @@
 
 			var NUM_SPHERES = 1;
 			var spheres = [];
-			var spheresEnabled = true;
 
 			var simplex = new SimplexNoise();
 
@@ -273,33 +272,10 @@
 
 				var gui = new GUI();
 
-				var effectController = {
-					spheresEnabled: spheresEnabled
-				};
-
-				var valuesChanger = function () {
-
-					spheresEnabled = effectController.spheresEnabled;
-					for ( var i = 0; i < NUM_SPHERES; i ++ ) {
-
-						if ( spheres[ i ] ) {
-
-							spheres[ i ].visible = spheresEnabled;
-
-						}
-
-					}
-
-				};
-
-				gui.add( effectController, "spheresEnabled", 0, 1, 1 ).onChange( valuesChanger );
-
 
 				initWater();
 
 				createSpheres();
-
-				valuesChanger();
 
 			}
 
@@ -580,11 +556,7 @@
 				// Do the gpu computation
 				gpuCompute.compute();
 
-				if ( spheresEnabled ) {
-
-					sphereDynamics();
-
-				}
+				sphereDynamics();
 
 				// Get compute output in custom uniform
 				waterUniforms[ "heightmap" ].value = gpuCompute.getCurrentRenderTarget( heightmapVariable ).texture;
