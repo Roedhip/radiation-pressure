@@ -20,7 +20,6 @@
 
 			#include <common>
 
-			uniform vec2 mousePos;
 			uniform float mouseSize;
 			uniform float viscosityConstant;
 			uniform float heightCompensation;
@@ -47,7 +46,7 @@
 				float newHeight = ( ( north.x + south.x + east.x + west.x ) * 0.5 - heightmapValue.y ) * viscosityConstant;
 
 				// Mouse influence
-				float mousePhase = clamp( length( ( uv - vec2( 0.5 ) ) * BOUNDS - vec2( mousePos.x, - mousePos.y ) ) * PI / mouseSize, 0.0, PI );
+				float mousePhase = clamp( length( ( uv - vec2( 0.5 ) ) * BOUNDS ) * PI / mouseSize, 0.0, PI );
 				newHeight += ( cos( mousePhase ) + 1.0 ) * 0.28;
 
 				heightmapValue.y = heightmapValue.x;
@@ -450,7 +449,6 @@
 
 				gpuCompute.setVariableDependencies( heightmapVariable, [ heightmapVariable ] );
 
-				heightmapVariable.material.uniforms[ "mousePos" ] = { value: new THREE.Vector2( 10000, 10000 ) };
 				heightmapVariable.material.uniforms[ "mouseSize" ] = { value: 20.0 };
 				heightmapVariable.material.uniforms[ "viscosityConstant" ] = { value: 0.98 };
 				heightmapVariable.material.uniforms[ "heightCompensation" ] = { value: 0 };
@@ -705,30 +703,6 @@
 
 				// Set uniforms: mouse interaction
 				var uniforms = heightmapVariable.material.uniforms;
-				if ( mouseMoved ) {
-
-					raycaster.setFromCamera( mouseCoords, camera );
-
-					var intersects = raycaster.intersectObject( meshRay );
-
-					if ( intersects.length > 0 ) {
-
-					    var point = intersects[ 0 ].point;
-					    uniforms[ "mousePos" ].value.set( point.x, point.z );
-
-					} else {
-
-					    uniforms[ "mousePos" ].value.set( 10000, 10000 );
-
-					}
-
-					mouseMoved = false;
-
-				} else {
-
-					uniforms[ "mousePos" ].value.set( 10000, 10000 );
-
-				}
 
 				// Do the gpu computation
 				gpuCompute.compute();
