@@ -190,7 +190,6 @@
 
                 var icosahedron = new THREE.Mesh(geometry, material);
                 scene.add(icosahedron);
-				var manualNormalMatrix = icosahedron.geometry.faces[15].normal;
 
 				// Creates the gpu computation class and sets it up
 
@@ -198,7 +197,7 @@
 
 				var heightmap0 = gpuCompute.createTexture();
 
-				fillTexture( heightmap0, manualNormalMatrix );
+				fillTexture( heightmap0, icosahedron );
 
 				heightmapVariable = gpuCompute.addVariable( "heightmap", document.getElementById( 'heightmapFragmentShader' ).textContent, heightmap0 );
 
@@ -237,16 +236,16 @@
 
 			}
 
-			function fillTexture( texture, normals ) {
+			function fillTexture( texture, geometry ) {
 
 				var pixels = texture.image.data;
 
 				var p = 0;
 				for ( var j = 0; j < WIDTH; j ++ ) {
 
-					pixels[ p + 0 ] = normals.x;
-					pixels[ p + 1 ] = normals.y;
-					pixels[ p + 2 ] = normals.z;
+					pixels[ p + 0 ] = geometry.geometry.faces[0].normal.x;
+					pixels[ p + 1 ] = geometry.geometry.faces[0].normal.y;
+					pixels[ p + 2 ] = geometry.geometry.faces[0].normal.z;
 					pixels[ p + 3 ] = 1;
 
 					p += 4;
