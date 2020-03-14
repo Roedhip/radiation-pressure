@@ -207,7 +207,6 @@
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
-			import { SimplexNoise } from './jsm/math/SimplexNoise.js';
 
 			// Texture width for simulation
 			var WIDTH = 128;
@@ -219,16 +218,11 @@
 			var container, stats;
 			var camera, scene, renderer;
 
-			var waterMesh;
 			var gpuCompute;
 			var heightmapVariable;
-			var waterUniforms;
 			var readWaterLevelShader;
 			var readWaterLevelRenderTarget;
 			var readWaterLevelImage;
-			var waterNormal = new THREE.Vector3();
-
-			var simplex = new SimplexNoise();
 
 			init();
 			animate();
@@ -414,9 +408,6 @@
 				gpuCompute.compute();
 
 				sphereDynamics();
-
-				// Get compute output in custom uniform
-				waterUniforms[ "heightmap" ].value = gpuCompute.getCurrentRenderTarget( heightmapVariable ).texture;
 
 				// Render
 				renderer.render( scene, camera );
