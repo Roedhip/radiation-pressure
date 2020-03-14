@@ -53,32 +53,6 @@
 
 		</script>
 
-		<!-- This is just a smoothing 'compute shader' for using manually: -->
-		<script id="smoothFragmentShader" type="x-shader/x-fragment">
-
-			uniform sampler2D smoothTexture;
-
-			void main()	{
-
-				vec2 cellSize = 1.0 / resolution.xy;
-
-				vec2 uv = gl_FragCoord.xy * cellSize;
-
-				// Computes the mean of texel and 4 neighbours
-				vec4 textureValue = texture2D( smoothTexture, uv );
-				textureValue += texture2D( smoothTexture, uv + vec2( 0.0, cellSize.y ) );
-				textureValue += texture2D( smoothTexture, uv + vec2( 0.0, - cellSize.y ) );
-				textureValue += texture2D( smoothTexture, uv + vec2( cellSize.x, 0.0 ) );
-				textureValue += texture2D( smoothTexture, uv + vec2( - cellSize.x, 0.0 ) );
-
-				textureValue /= 5.0;
-
-				gl_FragColor = textureValue;
-
-			}
-
-		</script>
-
 		<!-- This is a 'compute shader' to read the current level and normal of water at a point -->
 		<!-- It is used with a variable of size 1x1 -->
 		<script id="readWaterLevelFragmentShader" type="x-shader/x-fragment">
@@ -269,7 +243,6 @@
 			var gpuCompute;
 			var heightmapVariable;
 			var waterUniforms;
-			var smoothShader;
 			var readWaterLevelShader;
 			var readWaterLevelRenderTarget;
 			var readWaterLevelImage;
@@ -355,14 +328,6 @@
 
 				gui.add( effectController, "viscosity", 0.9, 0.999, 0.001 ).onChange( valuesChanger );
 				gui.add( effectController, "spheresEnabled", 0, 1, 1 ).onChange( valuesChanger );
-				var buttonSmooth = {
-					smoothWater: function () {
-
-						smoothWater();
-
-					}
-				};
-				gui.add( buttonSmooth, 'smoothWater' );
 
 
 				initWater();
@@ -443,9 +408,6 @@
 
 				}
 
-				// Create compute shader to smooth the water surface and velocity
-				smoothShader = gpuCompute.createShaderMaterial( document.getElementById( 'smoothFragmentShader' ).textContent, { smoothTexture: { value: null } } );
-
 				// Create compute shader to read water level
 				readWaterLevelShader = gpuCompute.createShaderMaterial( document.getElementById( 'readWaterLevelFragmentShader' ).textContent, {
 					point1: { value: new THREE.Vector2() },
@@ -508,23 +470,6 @@
 						p += 4;
 
 					}
-
-				}
-
-			}
-
-			function smoothWater() {
-
-				var currentRenderTarget = gpuCompute.getCurrentRenderTarget( heightmapVariable );
-				var alternateRenderTarget = gpuCompute.getAlternateRenderTarget( heightmapVariable );
-
-				for ( var i = 0; i < 10; i ++ ) {
-
-					smoothShader.uniforms[ "smoothTexture" ].value = currentRenderTarget.texture;
-					gpuCompute.doRenderTarget( smoothShader, alternateRenderTarget );
-
-					smoothShader.uniforms[ "smoothTexture" ].value = alternateRenderTarget.texture;
-					gpuCompute.doRenderTarget( smoothShader, currentRenderTarget );
 
 				}
 
@@ -666,7 +611,7 @@
 
 			function render() {
 
-				// Set uniforms: mouse interaction
+				// Set uniforms
 				var uniforms = heightmapVariable.material.uniforms;
 
 				// Do the gpu computation
