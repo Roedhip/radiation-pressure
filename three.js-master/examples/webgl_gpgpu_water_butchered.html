@@ -14,7 +14,7 @@
 			Press mouse button to orbit around. 'W' key toggles wireframe.
 		</div>
 
-
+		<p id="srpreadout">Warning! The Javascript code has not changed this text!</p>
 		<!-- This is the 'compute shader' for the water heightmap: -->
 		<script id="heightmapFragmentShader" type="x-shader/x-fragment">
 
@@ -281,7 +281,7 @@
 			var readWaterLevelImage;
 			var waterNormal = new THREE.Vector3();
 
-			var NUM_SPHERES = 5;
+			var NUM_SPHERES = 1;
 			var spheres = [];
 			var spheresEnabled = true;
 
@@ -605,6 +605,8 @@
 
 						// Set height
 						pos.y = pixels[ 0 ];
+
+						document.getElementById("srpreadout").innerHTML = pos.y;
 
 						// Move sphere
 						waterNormal.multiplyScalar( 0.1 );
