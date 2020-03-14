@@ -11,7 +11,7 @@
 		<div id="info">
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <span id="waterSize"></span> webgl gpgpu water<br/>
 			Look at me, look at me! I am the server now!<br>
-			Press mouse button to orbit around. 'W' key toggles wireframe.
+			Press mouse button to orbit around.
 		</div>
 
 		<p id="srpreadout">Warning! The Javascript code has not changed this text!</p>
@@ -19,9 +19,6 @@
 		<script id="heightmapFragmentShader" type="x-shader/x-fragment">
 
 			#include <common>
-
-			uniform float viscosityConstant;
-			uniform float heightCompensation;
 
 			void main()	{
 
@@ -271,31 +268,17 @@
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 
-				document.addEventListener( 'keydown', function ( event ) {
-
-					// W Pressed: Toggle wireframe
-					if ( event.keyCode === 87 ) {
-
-						waterMesh.material.wireframe = ! waterMesh.material.wireframe;
-						waterMesh.material.needsUpdate = true;
-
-					}
-
-				}, false );
-
 				window.addEventListener( 'resize', onWindowResize, false );
 
 
 				var gui = new GUI();
 
 				var effectController = {
-					viscosity: 0.98,
 					spheresEnabled: spheresEnabled
 				};
 
 				var valuesChanger = function () {
 
-					heightmapVariable.material.uniforms[ "viscosityConstant" ].value = effectController.viscosity;
 					spheresEnabled = effectController.spheresEnabled;
 					for ( var i = 0; i < NUM_SPHERES; i ++ ) {
 
@@ -309,7 +292,6 @@
 
 				};
 
-				gui.add( effectController, "viscosity", 0.9, 0.999, 0.001 ).onChange( valuesChanger );
 				gui.add( effectController, "spheresEnabled", 0, 1, 1 ).onChange( valuesChanger );
 
 
@@ -380,8 +362,6 @@
 
 				gpuCompute.setVariableDependencies( heightmapVariable, [ heightmapVariable ] );
 
-				heightmapVariable.material.uniforms[ "viscosityConstant" ] = { value: 0.98 };
-				heightmapVariable.material.uniforms[ "heightCompensation" ] = { value: 0 };
 				heightmapVariable.material.defines.BOUNDS = BOUNDS.toFixed( 1 );
 
 				var error = gpuCompute.init();
