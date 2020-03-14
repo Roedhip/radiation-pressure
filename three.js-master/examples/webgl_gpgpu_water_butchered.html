@@ -263,7 +263,7 @@
 				// Read water level and orientation
 				var u = 0.5 * 1 / BOUNDS_HALF + 0.5;
 				var v = 1 - ( 0.5 * 15 / BOUNDS_HALF + 0.5 );
-				readWaterLevelShader.uniforms[ "point1" ].value.set( 1.5, 0.5 );
+				readWaterLevelShader.uniforms[ "point1" ].value.set( 3.5, 0.5 );
 				gpuCompute.doRenderTarget( readWaterLevelShader, readWaterLevelRenderTarget );
 				// The most important thing ever!!!!!
 
