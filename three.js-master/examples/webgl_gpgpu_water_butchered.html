@@ -228,9 +228,6 @@
 			var readWaterLevelImage;
 			var waterNormal = new THREE.Vector3();
 
-			var NUM_SPHERES = 1;
-			var spheres = [];
-
 			var simplex = new SimplexNoise();
 
 			init();
@@ -274,8 +271,6 @@
 
 
 				initWater();
-
-				createSpheres();
 
 			}
 
@@ -409,32 +404,6 @@
 						p += 4;
 
 					}
-
-				}
-
-			}
-
-			function createSpheres() {
-
-				var sphereTemplate = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 24, 12 ), new THREE.MeshPhongMaterial( { color: 0xFFFF00 } ) );
-
-				for ( var i = 0; i < NUM_SPHERES; i ++ ) {
-
-					var sphere = sphereTemplate;
-					if ( i < NUM_SPHERES - 1 ) {
-
-						sphere = sphereTemplate.clone();
-
-					}
-
-					sphere.position.x = ( Math.random() - 0.5 ) * BOUNDS * 0.7;
-					sphere.position.z = ( Math.random() - 0.5 ) * BOUNDS * 0.7;
-
-					sphere.userData.velocity = new THREE.Vector3();
-
-					scene.add( sphere );
-
-					spheres[ i ] = sphere;
 
 				}
 
