@@ -20,6 +20,15 @@
 
 			#include <common>
 
+			// defining power from sunlight in here because uniforms are effort
+			float sunPower = 1368.0;
+			// defining reflectivity of the material
+			float matReflectivity = 0.5;
+			// defining specularity of the material
+			float matSpecularity = 0.5;
+			// giving value for light speed
+			float lightSpeed = 300000000.0;
+
 			void main()	{
 
 				vec2 cellSize = 1.0 / resolution.xy;
@@ -29,9 +38,9 @@
 				// heightmapValue.x == height from previous frame
 				// heightmapValue.y == height from penultimate frame
 				// heightmapValue.z, heightmapValue.w not used
-				vec4 heightmapValue = texture2D( heightmap, uv );
+				vec4 normalMapValue = texture2D( heightmap, uv );
 
-				gl_FragColor = heightmapValue;
+				gl_FragColor = normalMapValue;
 
 			}
 
@@ -241,7 +250,7 @@
 				var pixels = texture.image.data;
 
 				var p = 0;
-				for ( var j = 0; j < 20; j ++ ) {
+				for ( var j = 0; j < WIDTH; j ++ ) {
 
 					pixels[ p + 0 ] = geometry.geometry.faces[j].normal.x;
 					pixels[ p + 1 ] = geometry.geometry.faces[j].normal.y;
