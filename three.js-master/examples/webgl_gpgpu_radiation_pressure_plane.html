@@ -98,7 +98,7 @@
 			// giving value for light speed
 			float lightSpeed = 300000000.0;
 			// direction of sunlight (of, not to)
-			vec3 iSun = vec3(0.0, 0.0, -1.0);
+			vec3 iSun = vec3(0.0, 0.0, 1.0);
 
             vec2 cellSize = 1.0 / resolution.xy;
 
@@ -126,13 +126,15 @@
 
 				    normal = texture2D( normalTexture, reader );
 
-				    normdotsun = normal.x*iSun.x + normal.y*iSun.y + normal.z*iSun.z;
+                    normdotsun = normal.x*iSun.x + normal.y*iSun.y + normal.z*iSun.z;
 
 				    if (normdotsun < 0.0) {
 				    	cosangle = -normdotsun;
 				    	reflectionRay = vec3(iSun) - 2.0 * normdotsun * vec3(normal.x, normal.y, normal.z);
                         srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(normal.x, normal.y, normal.z));
                         srpFace = normal.w * sunPower * srpScale / lightSpeed;
+                    } else {
+                        srpFace = vec3(0.0, 0.0, 0.0);
                     }
 
                     srp += srpFace;
