@@ -98,24 +98,46 @@
 			// giving value for light speed
 			float lightSpeed = 300000000.0;
 			// direction of sunlight (of, not to)
-			vec3 iSun = vec3(0.0, 0.0, 1.0);
+			vec3 iSun = vec3(0.0, 0.0, -1.0);
+
+            vec2 cellSize = 1.0 / resolution.xy;
+
+            vec3 srpScale;
+
+            vec3 srpFace;
+
+            vec3 srp;
+
+            vec3 reflectionRay;
+
+            float cosangle;
+
+            float normdotsun;
+
+            vec4 normal;
+
+            vec2 reader;
 
 			void main()	{
+                
+                for(float i=0.;i<4.;i++) {
 
-				vec2 cellSize = 1.0 / resolution.xy;
+                    reader = vec2(0.85 - i/4.0, 0.5);
 
-				vec4 normal = texture2D( normalTexture, point1 );
+				    normal = texture2D( normalTexture, reader );
 
-				float normdotsun = normal.x*iSun.x + normal.y*iSun.y + normal.z*iSun.z;
+				    normdotsun = normal.x*iSun.x + normal.y*iSun.y + normal.z*iSun.z;
 
-				vec3 srp;
+				    if (normdotsun < 0.0) {
+				    	cosangle = -normdotsun;
+				    	reflectionRay = vec3(iSun) - 2.0 * normdotsun * vec3(normal.x, normal.y, normal.z);
+                        srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(normal.x, normal.y, normal.z));
+                        srpFace = normal.w * sunPower * srpScale / lightSpeed;
+                    }
 
-				if (normdotsun < 0.0) {
-					float cosangle = -normdotsun;
-					vec3 reflectionRay = vec3(iSun) - 2.0 * normdotsun * vec3(normal.x, normal.y, normal.z);
-					float srpMax = sunPower/lightSpeed;
-					srp = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(normal.x, normal.y, normal.z));
-				}
+                    srp += srpFace;
+                
+                }
 
 				if ( gl_FragCoord.x < 1.5 ) {
 
@@ -273,7 +295,7 @@
 					pixels[ p + 0 ] = geometry1.geometry.faces[j].normal.x;
 					pixels[ p + 1 ] = geometry1.geometry.faces[j].normal.y;
 					pixels[ p + 2 ] = geometry1.geometry.faces[j].normal.z;
-					pixels[ p + 3 ] = 0.5;
+					pixels[ p + 3 ] = 1.2; //Manually defined area of one triangular face on geometry1
 
 					p += 4;
 
@@ -285,7 +307,7 @@
 					pixels[ p + 0 ] = geometry2.geometry.faces[j].normal.x;
 					pixels[ p + 1 ] = geometry2.geometry.faces[j].normal.y;
 					pixels[ p + 2 ] = geometry2.geometry.faces[j].normal.z;
-					pixels[ p + 3 ] = 0.5;
+					pixels[ p + 3 ] = 1.2; //Manually defined area of one triangular face on geometry2
 
 					p += 4;
 
@@ -302,7 +324,7 @@
 				// Read normal map
 				var u = 0.5 * 1 / BOUNDS_HALF + 0.5;
 				var v = 1 - ( 0.5 * 15 / BOUNDS_HALF + 0.5 );
-				srpShader.uniforms[ "point1" ].value.set( 0.1, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
+				srpShader.uniforms[ "point1" ].value.set( 0.9, 0.5 ); //x value should be face/20 (so a value between 0 and 0.95)
 				gpuCompute.doRenderTarget( srpShader, srpShaderFormatting );
 				// The most important thing ever!!!!!
 
