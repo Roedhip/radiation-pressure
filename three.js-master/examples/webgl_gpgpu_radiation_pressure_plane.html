@@ -334,7 +334,7 @@
 				var pixels = new Float32Array( srpImage.buffer );
 
 				// Set height
-				document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2] + " // " + pixels[3];
+				//document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2] + " // " + pixels[3];
 
 			}
 
@@ -369,7 +369,10 @@
 
 			}
 
-			function animate() {
+			function animate( time ) {
+
+				time *= 0.001; // convert to seconds
+				document.getElementById("srpreadout").innerHTML = time;
 
 				requestAnimationFrame( animate );
 
