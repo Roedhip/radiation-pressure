@@ -1,0 +1,402 @@
+ <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - gpgpu - radiation pressure</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <span id="waterSize"></span> webgl gpgpu radiation pressure<br/>
+			A demonstration of Solar Radiation Pressure calculation on the GPU<br>
+			Press mouse button to orbit around.
+		</div>
+
+		<p id="srpreadout1">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout2">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout3">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout4">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout5">Warning! The Javascript code has not changed this text!</p>
+		<!-- This shader takes an array of normals and areas from JavaScript in WebGL: -->
+		<script id="normalMapFragmentShader" type="x-shader/x-fragment">
+
+			#include <common>
+
+			void main()	{
+
+				vec2 cellSize = 1.0 / resolution.xy;
+
+				vec2 uv = gl_FragCoord.xy * cellSize;
+
+				// normalMapValue.xyz == normals of the face
+				// normalMapValue.w == area of the face
+				vec4 normalMapValue = texture2D( normalMap, uv );
+
+				gl_FragColor = normalMapValue;
+
+			}
+
+		</script>
+
+		<!-- This shader reads normalMapFragmentShader's output and calculates SRP -->
+		<!-- It is used with a variable of size 1x1 -->
+		<script id="srpFragmentShader" type="x-shader/x-fragment">
+
+			uniform vec3 iSun;
+
+			uniform sampler2D normalTexture;
+
+			// Integer to float conversion from https://stackoverflow.com/questions/17981163/webgl-read-pixels-from-floating-point-render-target
+
+			float shift_right( float v, float amt ) {
+
+				v = floor( v ) + 0.5;
+				return floor( v / exp2( amt ) );
+
+			}
+
+			float shift_left( float v, float amt ) {
+
+				return floor( v * exp2( amt ) + 0.5 );
+
+			}
+
+			float mask_last( float v, float bits ) {
+
+				return mod( v, shift_left( 1.0, bits ) );
+
+			}
+
+			float extract_bits( float num, float from, float to ) {
+
+				from = floor( from + 0.5 ); to = floor( to + 0.5 );
+				return mask_last( shift_right( num, from ), to - from );
+
+			}
+
+			vec4 encode_float( float val ) {
+				if ( val == 0.0 ) return vec4( 0, 0, 0, 0 );
+				float sign = val > 0.0 ? 0.0 : 1.0;
+				val = abs( val );
+				float exponent = floor( log2( val ) );
+				float biased_exponent = exponent + 127.0;
+				float fraction = ( ( val / exp2( exponent ) ) - 1.0 ) * 8388608.0;
+				float t = biased_exponent / 2.0;
+				float last_bit_of_biased_exponent = fract( t ) * 2.0;
+				float remaining_bits_of_biased_exponent = floor( t );
+				float byte4 = extract_bits( fraction, 0.0, 8.0 ) / 255.0;
+				float byte3 = extract_bits( fraction, 8.0, 16.0 ) / 255.0;
+				float byte2 = ( last_bit_of_biased_exponent * 128.0 + extract_bits( fraction, 16.0, 23.0 ) ) / 255.0;
+				float byte1 = ( sign * 128.0 + remaining_bits_of_biased_exponent ) / 255.0;
+				return vec4( byte4, byte3, byte2, byte1 );
+			}
+
+			// defining power from sunlight in here because uniforms are effort
+			float sunPower = 1368.0;
+			// defining reflectivity of the material
+			float matReflectivity = 1.0;
+			// defining specularity of the material
+			float matSpecularity = 1.0;
+			// giving value for light speed
+			float lightSpeed = 300000000.0;
+			// direction of sunlight (of, not to)
+			//vec3 iSun = vec3(0.0, 0.0, 1.0);
+
+            vec2 cellSize = 1.0 / resolution.xy;
+
+            vec3 srpScale;
+
+            vec3 srpFace;
+
+            vec3 srp;
+
+            vec3 reflectionRay;
+
+            float cosangle;
+
+            float normdotsun;
+
+            vec4 normal;
+
+            vec2 reader;
+
+			void main()	{
+                
+                for(float i=0.;i<60.;i++) {
+
+                    reader = vec2(0.01 + i/60.0, 0.5);
+
+				    normal = texture2D( normalTexture, reader );
+
+                    normdotsun = normal.x*iSun.x + normal.y*iSun.y + normal.z*iSun.z;
+
+				    if (normdotsun < 0.0) {
+				    	cosangle = -normdotsun;
+				    	reflectionRay = vec3(iSun) - 2.0 * normdotsun * vec3(normal.x, normal.y, normal.z);
+                        srpScale = cosangle * (vec3(iSun) - matReflectivity*matSpecularity*vec3(reflectionRay) - (2.0/3.0)*matReflectivity*(1.0-matSpecularity)*vec3(normal.x, normal.y, normal.z));
+                        srpFace = normal.w * sunPower * srpScale / lightSpeed;
+                    } else {
+                        srpFace = vec3(0.0, 0.0, 0.0);
+                    }
+
+                    srp += srpFace;
+                
+                }
+
+				if ( gl_FragCoord.x < 1.5 ) {
+
+					gl_FragColor = encode_float( srp.x );
+
+				} else if ( gl_FragCoord.x < 2.5 ) {
+
+					gl_FragColor = encode_float( srp.y );
+
+				} else if ( gl_FragCoord.x < 3.5 ) {
+
+					gl_FragColor = encode_float( srp.z );
+
+				} else {
+
+					gl_FragColor = encode_float( normal.w );
+
+				}
+
+			}
+
+		</script>
+
+		<script type="module">
+
+			import * as THREE from '../build/three.module.js';
+
+			import Stats from './jsm/libs/stats.module.js';
+			import { GUI } from './jsm/libs/dat.gui.module.js';
+
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
+
+			// Texture width for simulation
+			var WIDTH = 60;
+
+			// Water size in system units
+			var BOUNDS = 512;
+			var BOUNDS_HALF = BOUNDS * 0.5;
+
+			var container, stats;
+			var camera, scene, renderer;
+
+			var gpuCompute;
+			var normalMapVariable;
+			var srpShader;
+			var srpShaderFormatting;
+			var srpImage;
+
+			scene = new THREE.Scene();
+
+			var sun = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
+			sun.position.set( 0.0, 0.0, 100.0 );
+			scene.add( sun );
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.set( 0, 0, 2.5 );
+
+				scene.background = new THREE.Color( 0x999999 );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				var controls = new OrbitControls( camera, renderer.domElement );
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+
+				var gui = new GUI();
+
+
+				initSatellite();
+
+			}
+
+
+			function initSatellite() {
+
+				var icoRadius = 1; //distance from centre to vertices
+                var icoDetail = 1;
+                var geometry1 = new THREE.IcosahedronGeometry( icoRadius, icoDetail );
+                var material = new THREE.MeshLambertMaterial( { color: 0x1066ad } );
+
+                var icosahedron1 = new THREE.Mesh(geometry1, material);
+                scene.add(icosahedron1);
+
+				// Creates the gpu computation class and sets it up
+
+				gpuCompute = new GPUComputationRenderer( WIDTH, 1, renderer );
+
+				var normalMap0 = gpuCompute.createTexture();
+
+				fillTexture( normalMap0, icosahedron1 );
+
+				normalMapVariable = gpuCompute.addVariable( "normalMap", document.getElementById( 'normalMapFragmentShader' ).textContent, normalMap0 );
+
+				gpuCompute.setVariableDependencies( normalMapVariable, [ normalMapVariable ] );
+
+				normalMapVariable.material.defines.BOUNDS = BOUNDS.toFixed( 1 );
+
+				var error = gpuCompute.init();
+				if ( error !== null ) {
+
+				    console.error( error );
+
+				}
+
+				// Create compute shader to calculate SRP
+				srpShader = gpuCompute.createShaderMaterial( document.getElementById( 'srpFragmentShader' ).textContent, {
+					iSun: { value: new THREE.Vector3() },
+					normalTexture: { value: null }
+				} );
+				srpShader.defines.WIDTH = WIDTH.toFixed( 1 );
+				srpShader.defines.BOUNDS = BOUNDS.toFixed( 1 );
+
+				// Create a 4x1 pixel image and a render target (Uint8, 4 channels, 1 byte per channel) to output the calculated SRP
+				srpImage = new Uint8Array( 4 * 1 * 4 );
+
+				srpShaderFormatting = new THREE.WebGLRenderTarget( 4, 1, {
+					wrapS: THREE.ClampToEdgeWrapping,
+					wrapT: THREE.ClampToEdgeWrapping,
+					minFilter: THREE.NearestFilter,
+					magFilter: THREE.NearestFilter,
+					format: THREE.RGBAFormat,
+					type: THREE.UnsignedByteType,
+					stencilBuffer: false,
+					depthBuffer: false
+				} );
+
+			}
+
+			function fillTexture( texture, geometry1 ) {
+
+				var pixels = texture.image.data;
+
+				var p = 0;
+				for ( var j = 0; j < 60; j ++ ) {
+					
+
+					pixels[ p + 0 ] = geometry1.geometry.faces[j].normal.x;
+					pixels[ p + 1 ] = geometry1.geometry.faces[j].normal.y;
+					pixels[ p + 2 ] = geometry1.geometry.faces[j].normal.z;
+					pixels[ p + 3 ] = 0.119682; //Manually defined area of one triangular face on geometry1
+
+					p += 4;
+
+				}
+
+			}
+
+			function sphereDynamics( time ) {
+
+				var currentRenderTarget = gpuCompute.getCurrentRenderTarget( normalMapVariable );
+
+				srpShader.uniforms[ "normalTexture" ].value = currentRenderTarget.texture;
+
+				// Define Sun direction
+				var x = Math.sin(time * 0.1);
+				var y = 0.0;
+				var z = Math.cos(time * 0.1);
+				srpShader.uniforms[ "iSun" ].value.set( x, y, z);
+
+				sun.position.set( 100*x, 100*y, 100*z );
+
+				// Calculate SRP for this sun direction
+				gpuCompute.doRenderTarget( srpShader, srpShaderFormatting );
+
+				renderer.readRenderTargetPixels( srpShaderFormatting, 0, 0, 4, 1, srpImage );
+				var pixels = new Float32Array( srpImage.buffer );
+
+				// Output SRP and time
+				document.getElementById("srpreadout1").innerHTML = "X-Component: " + pixels[0];
+				document.getElementById("srpreadout2").innerHTML = "Y-Component: " + pixels[1];
+				document.getElementById("srpreadout3").innerHTML = "Z-Component: " + pixels[2];
+				document.getElementById("srpreadout4").innerHTML = "Sun Direction: " + x + ", " + y + ", " + z;
+				document.getElementById("srpreadout5").innerHTML = "Time: " + time;
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentTouchStart( event ) {
+
+				if ( event.touches.length === 1 ) {
+
+					event.preventDefault();
+
+
+				}
+
+			}
+
+			function onDocumentTouchMove( event ) {
+
+				if ( event.touches.length === 1 ) {
+
+					event.preventDefault();
+
+
+				}
+
+			}
+
+			function animate( time ) {
+
+				time *= 0.001; // convert to seconds
+				//document.getElementById("srpreadout").innerHTML = time;
+
+				requestAnimationFrame( animate );
+
+				render( time );
+				stats.update();
+
+			}
+
+			function render( time ) {
+
+				// Set uniforms
+				var uniforms = normalMapVariable.material.uniforms;
+
+				// Do the gpu computation
+				gpuCompute.compute();
+
+				sphereDynamics( time );
+
+				// Render
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
