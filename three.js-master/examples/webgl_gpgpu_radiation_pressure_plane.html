@@ -317,7 +317,7 @@
 
 			}
 
-			function sphereDynamics() {
+			function sphereDynamics( time ) {
 
 				var currentRenderTarget = gpuCompute.getCurrentRenderTarget( normalMapVariable );
 
@@ -334,7 +334,7 @@
 				var pixels = new Float32Array( srpImage.buffer );
 
 				// Set height
-				//document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2] + " // " + pixels[3];
+				document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2] + " // " + time;
 
 			}
 
@@ -372,16 +372,16 @@
 			function animate( time ) {
 
 				time *= 0.001; // convert to seconds
-				document.getElementById("srpreadout").innerHTML = time;
+				//document.getElementById("srpreadout").innerHTML = time;
 
 				requestAnimationFrame( animate );
 
-				render();
+				render( time );
 				stats.update();
 
 			}
 
-			function render() {
+			function render( time ) {
 
 				// Set uniforms
 				var uniforms = normalMapVariable.material.uniforms;
@@ -389,7 +389,7 @@
 				// Do the gpu computation
 				gpuCompute.compute();
 
-				sphereDynamics();
+				sphereDynamics( time );
 
 				// Render
 				renderer.render( scene, camera );
