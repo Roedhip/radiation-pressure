@@ -124,9 +124,9 @@
 
 			void main()	{
                 
-                for(float i=0.;i<80.;i++) {
+                for(float i=0.;i<19800.;i++) {
 
-                    reader = vec2(0.0005 + i/80.0, 0.5);
+                    reader = vec2(0.00001 + i/19800.0, 0.5);
 
 				    normal = texture2D( normalTexture, reader );
 
@@ -178,7 +178,7 @@
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
 
 			// Texture width for simulation
-			var WIDTH = 80;
+			var WIDTH = 19800;
 
 			// Water size in system units
 			var BOUNDS = 512;
@@ -248,11 +248,11 @@
 
 				var icoRadius = 1; //distance from centre to vertices
                 var icoDetail = 1;
-                var geometry1 = new THREE.IcosahedronGeometry( icoRadius, icoDetail );
+                var geometry1 = new THREE.SphereGeometry( 1, 100, 100 ); // 19800 faces
                 var material = new THREE.MeshLambertMaterial( { color: 0x1066ad } );
 
-                var icosahedron1 = new THREE.Mesh(geometry1, material);
-                scene.add(icosahedron1);
+                var sphere1 = new THREE.Mesh(geometry1, material);
+                scene.add(sphere1);
 
 				// Creates the gpu computation class and sets it up
 
@@ -260,7 +260,7 @@
 
 				var normalMap0 = gpuCompute.createTexture();
 
-				fillTexture( normalMap0, icosahedron1 );
+				fillTexture( normalMap0, sphere1 );
 
 				normalMapVariable = gpuCompute.addVariable( "normalMap", document.getElementById( 'normalMapFragmentShader' ).textContent, normalMap0 );
 
@@ -304,7 +304,7 @@
 				var pixels = texture.image.data;
 
 				var p = 0;
-				for ( var j = 0; j < 80; j ++ ) {
+				for ( var j = 0; j < WIDTH; j ++ ) {
 					
 
 					pixels[ p + 0 ] = geometry1.geometry.faces[j].normal.x;
