@@ -14,7 +14,11 @@
 			Press mouse button to orbit around.
 		</div>
 
-		<p id="srpreadout">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout1">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout2">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout3">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout4">Warning! The Javascript code has not changed this text!</p>
+		<p id="srpreadout5">Warning! The Javascript code has not changed this text!</p>
 		<!-- This shader takes an array of normals and areas from JavaScript in WebGL: -->
 		<script id="normalMapFragmentShader" type="x-shader/x-fragment">
 
@@ -323,18 +327,24 @@
 
 				srpShader.uniforms[ "normalTexture" ].value = currentRenderTarget.texture;
 
-				// Read normal map
-				var u = 0.5 * 1 / BOUNDS_HALF + 0.5;
-				var v = 1 - ( 0.5 * 15 / BOUNDS_HALF + 0.5 );
-				srpShader.uniforms[ "iSun" ].value.set( 0.0, 0.0, 1.0 ); //x value should be face/20 (so a value between 0 and 0.95)
+				// Define Sun direction
+				var x = Math.sin(time * 0.1);
+				var y = 0.0;
+				var z = Math.cos(time * 0.1);
+				srpShader.uniforms[ "iSun" ].value.set( x, y, z);
+
+				// Calculate SRP for this sun direction
 				gpuCompute.doRenderTarget( srpShader, srpShaderFormatting );
-				// The most important thing ever!!!!!
 
 				renderer.readRenderTargetPixels( srpShaderFormatting, 0, 0, 4, 1, srpImage );
 				var pixels = new Float32Array( srpImage.buffer );
 
-				// Set height
-				document.getElementById("srpreadout").innerHTML = pixels[0] + " / " + pixels[1] + " / " + pixels[2] + " // " + time;
+				// Output SRP and time
+				document.getElementById("srpreadout1").innerHTML = "X-Component: " + pixels[0];
+				document.getElementById("srpreadout2").innerHTML = "Y-Component: " + pixels[1];
+				document.getElementById("srpreadout3").innerHTML = "Z-Component: " + pixels[2];
+				document.getElementById("srpreadout4").innerHTML = "Sun Direction: " + x + ", " + y + ", " + z;
+				document.getElementById("srpreadout5").innerHTML = "Time: " + time;
 
 			}
 
