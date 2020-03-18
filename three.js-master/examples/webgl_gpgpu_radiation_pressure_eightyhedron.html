@@ -199,6 +199,18 @@
 			sun.position.set( 0.0, 0.0, 100.0 );
 			scene.add( sun );
 
+			var gui = new GUI();
+
+				var rotationController = {
+					longtitude: -180.0,
+					latitude: 0.0,
+					longtitudionalrotation: 0.1,
+				};
+
+				gui.add( rotationController, "longtitude", -180.0, 180.0, 0.001 );
+				gui.add( rotationController, "latitude", -90.0, 90.0, 0.001 );
+				gui.add( rotationController, "longtitudionalrotation", 0.0, 5.0, 0.001 );
+
 			init();
 			animate();
 
@@ -226,20 +238,6 @@
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 
 				window.addEventListener( 'resize', onWindowResize, false );
-
-
-				var gui = new GUI();
-
-				var rotationController = {
-					longtitude: 0.0,
-					latitude: 0.0,
-					longtitudionalrotation: 0.1,
-					latitudeoscillation: 0.0,
-				};
-
-				gui.add( rotationController, "longtitude", -180.0, 180.0, 0.001 );
-				gui.add( rotationController, "latitude", -90.0, 90.0, 0.001 );
-				gui.add( rotationController, "longtitudionalrotation", 0.0, 5.0, 0.001 );
 
 				initSatellite();
 
@@ -326,13 +324,17 @@
 
 				srpShader.uniforms[ "normalTexture" ].value = currentRenderTarget.texture;
 
+				var longtitude = rotationController.longtitude/180 * Math.PI + time * rotationController.longtitudionalrotation;
+				var latitude = rotationController.latitude/180 * Math.PI;
+
 				// Define Sun direction
-				var x = Math.sin(time * 0.1);
-				var y = 0.0;
-				var z = Math.cos(time * 0.1);
+				var x = Math.cos(latitude) * Math.sin(longtitude);
+				var y = Math.sin(latitude);
+				var z = Math.cos(latitude) * Math.cos(longtitude);
+				var gavin = rotationController.longtitude;
 				srpShader.uniforms[ "iSun" ].value.set( x, y, z);
 
-				sun.position.set( 100*x, 100*y, 100*z );
+				sun.position.set( -100*x, -100*y, -100*z );
 
 				// Calculate SRP for this sun direction
 				gpuCompute.doRenderTarget( srpShader, srpShaderFormatting );
