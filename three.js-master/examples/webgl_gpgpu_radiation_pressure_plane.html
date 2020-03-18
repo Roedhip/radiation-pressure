@@ -193,6 +193,12 @@
 			var srpShaderFormatting;
 			var srpImage;
 
+			scene = new THREE.Scene();
+
+			var sun = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
+			sun.position.set( 0.0, 0.0, 100.0 );
+			scene.add( sun );
+
 			init();
 			animate();
 
@@ -204,7 +210,7 @@
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
 				camera.position.set( 0, 0, 2 );
 
-				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x999999 );
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -237,7 +243,7 @@
                 var geometry1 = new THREE.PlaneGeometry( 1.2, 2 );
                 var geometry2 = new THREE.PlaneGeometry( 1.2, 2 );
                 geometry2.rotateX(Math.PI);
-                var material = new THREE.MeshBasicMaterial( { color: 0x1066ad } );
+                var material = new THREE.MeshLambertMaterial( { color: 0x1066ad } );
 
                 var plane1 = new THREE.Mesh(geometry1, material);
                 scene.add(plane1);
@@ -332,6 +338,8 @@
 				var y = 0.0;
 				var z = Math.cos(time * 0.1);
 				srpShader.uniforms[ "iSun" ].value.set( x, y, z);
+
+				sun.position.set( 100*x, 100*y, 100*z );
 
 				// Calculate SRP for this sun direction
 				gpuCompute.doRenderTarget( srpShader, srpShaderFormatting );
