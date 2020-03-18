@@ -124,9 +124,9 @@
 
 			void main()	{
                 
-                for(float i=0.;i<60.;i++) {
+                for(float i=0.;i<80.;i++) {
 
-                    reader = vec2(0.01 + i/60.0, 0.5);
+                    reader = vec2(0.0005 + i/80.0, 0.5);
 
 				    normal = texture2D( normalTexture, reader );
 
@@ -178,7 +178,7 @@
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
 
 			// Texture width for simulation
-			var WIDTH = 60;
+			var WIDTH = 80;
 
 			// Water size in system units
 			var BOUNDS = 512;
@@ -296,7 +296,7 @@
 				var pixels = texture.image.data;
 
 				var p = 0;
-				for ( var j = 0; j < 60; j ++ ) {
+				for ( var j = 0; j < 80; j ++ ) {
 					
 
 					pixels[ p + 0 ] = geometry1.geometry.faces[j].normal.x;
