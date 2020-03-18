@@ -230,6 +230,16 @@
 
 				var gui = new GUI();
 
+				var rotationController = {
+					longtitude: 0.0,
+					latitude: 0.0,
+					longtitudionalrotation: 0.1,
+					latitudeoscillation: 0.0,
+				};
+
+				gui.add( rotationController, "longtitude", -180.0, 180.0, 0.001 );
+				gui.add( rotationController, "latitude", -90.0, 90.0, 0.001 );
+				gui.add( rotationController, "longtitudionalrotation", 0.0, 5.0, 0.001 );
 
 				initSatellite();
 
