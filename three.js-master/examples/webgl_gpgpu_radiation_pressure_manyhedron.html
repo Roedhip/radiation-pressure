@@ -124,9 +124,9 @@
 
 			void main()	{
                 
-                for(float i=0.;i<80.;i++) {
+                for(float i=0.;i<5120.;i++) {
 
-                    reader = vec2(0.0005 + i/80.0, 0.5);
+                    reader = vec2(0.00001 + i/5120.0, 0.5);
 
 				    normal = texture2D( normalTexture, reader );
 
@@ -178,7 +178,7 @@
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
 
 			// Texture width for simulation
-			var WIDTH = 80;
+			var WIDTH = 5120;
 
 			// Water size in system units
 			var BOUNDS = 512;
@@ -247,8 +247,8 @@
 			function initSatellite() {
 
 				var icoRadius = 1; //distance from centre to vertices
-                var icoDetail = 1;
-                var geometry1 = new THREE.IcosahedronGeometry( icoRadius, icoDetail );
+                var icoDetail = 4;
+                var geometry1 = new THREE.IcosahedronGeometry( icoRadius, icoDetail ); // 5120 faces for icoRadius = 4
                 var material = new THREE.MeshLambertMaterial( { color: 0x1066ad } );
 
                 var icosahedron1 = new THREE.Mesh(geometry1, material);
@@ -304,13 +304,13 @@
 				var pixels = texture.image.data;
 
 				var p = 0;
-				for ( var j = 0; j < 80; j ++ ) {
+				for ( var j = 0; j < WIDTH; j ++ ) {
 					
 
 					pixels[ p + 0 ] = geometry1.geometry.faces[j].normal.x;
 					pixels[ p + 1 ] = geometry1.geometry.faces[j].normal.y;
 					pixels[ p + 2 ] = geometry1.geometry.faces[j].normal.z;
-					pixels[ p + 3 ] = 0.119682; //Manually defined area of one triangular face on geometry1
+					pixels[ p + 3 ] = 0.00245437; //Manually defined area of one triangular face on geometry1, 4*pi/5120
 
 					p += 4;
 
@@ -329,7 +329,7 @@
 
 				// Define Sun direction
 				var x = Math.cos(latitude) * Math.sin(longtitude);
-				var y = Math.sin(latitude);
+				var y = Math.sin(-latitude);
 				var z = Math.cos(latitude) * Math.cos(longtitude);
 				var gavin = rotationController.longtitude;
 				srpShader.uniforms[ "iSun" ].value.set( x, y, z);

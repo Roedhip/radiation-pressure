@@ -331,7 +331,7 @@
 
 				// Define Sun direction
 				var x = Math.cos(latitude) * Math.sin(longtitude);
-				var y = Math.sin(latitude);
+				var y = Math.sin(-latitude);
 				var z = Math.cos(latitude) * Math.cos(longtitude);
 				var gavin = rotationController.longtitude;
 				srpShader.uniforms[ "iSun" ].value.set( x, y, z);
