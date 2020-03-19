@@ -95,10 +95,10 @@
 
 			// defining power from sunlight in here because uniforms are effort
 			float sunPower = 1368.0;
-			// defining reflectivity of the material
-			float matReflectivity = 0.5;
-			// defining specularity of the material
-			float matSpecularity = 0.8;
+			// defining reflectivity of the material, now defined in void main
+			float matReflectivity;
+			// defining specularity of the material, now defined in void main
+			float matSpecularity;
 			// giving value for light speed
 			float lightSpeed = 299792458.0;
 			// direction of sunlight (of, not to)
@@ -125,6 +125,29 @@
 			void main()	{
                 
                 for(float i=0.;i<20.;i++) {
+
+                    if (i < 2.0) {
+                        matReflectivity = 0.637;
+                        matSpecularity = 0.764;
+                    } else if (i < 4.0) {
+                        matReflectivity = 0.07;
+                        matSpecularity = 0.0;
+                    } else if (i < 6.0) {
+                        matReflectivity = 0.574;
+                        matSpecularity = 0.764;
+                    } else if (i < 8.0) {
+                        matReflectivity = 0.540;
+                        matSpecularity = 0.746;
+                    } else if (i < 10.0) {
+                        matReflectivity = 0.303;
+                        matSpecularity = 0.471;
+                    } else if (i < 12.0) {
+                        matReflectivity = 0.338;
+                        matSpecularity = 0.681;
+                    } else {
+                        matReflectivity = 0.086;
+                        matSpecularity = 1.0;
+                    }
 
                     reader = vec2(0.00001 + i/20.0, 0.5);
 
