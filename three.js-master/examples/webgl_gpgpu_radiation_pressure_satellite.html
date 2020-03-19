@@ -124,9 +124,9 @@
 
 			void main()	{
                 
-                for(float i=0.;i<5120.;i++) {
+                for(float i=0.;i<12.;i++) {
 
-                    reader = vec2(0.00001 + i/5120.0, 0.5);
+                    reader = vec2(0.00001 + i/12.0, 0.5);
 
 				    normal = texture2D( normalTexture, reader );
 
@@ -178,7 +178,7 @@
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
 
 			// Texture width for simulation
-			var WIDTH = 5120;
+			var WIDTH = 12;
 
 			// Water size in system units
 			var BOUNDS = 512;
@@ -202,7 +202,7 @@
 			var gui = new GUI();
 
 				var rotationController = {
-					longtitude: -180.0,
+					longtitude: 90.0,
 					latitude: 0.0,
 					longtitudionalrotation: 0.1,
 				};
@@ -248,11 +248,35 @@
 
 				var icoRadius = 1; //distance from centre to vertices
                 var icoDetail = 4;
-                var geometry1 = new THREE.IcosahedronGeometry( icoRadius, icoDetail ); // 5120 faces for icoRadius = 4
+                var geometry1 = new THREE.BoxGeometry( 2.53, 1.2, 1.1 ); // 12 faces
+                var geometry2 = new THREE.PlaneGeometry( 1.082, 5 ); // 2 faces
+                geometry2.rotateY(Math.PI * 0.5);
+                var geometry3 = new THREE.PlaneGeometry( 1.082, 5 ); // 2 faces
+                geometry3.rotateY(Math.PI * 1.5);
+                var geometry4 = new THREE.PlaneGeometry( 1.082, 5 ); // 2 faces
+                geometry4.rotateY(Math.PI * 0.5);
+                var geometry5 = new THREE.PlaneGeometry( 1.082, 5 ); // 2 faces
+                geometry5.rotateY(Math.PI * 1.5);
                 var material = new THREE.MeshLambertMaterial( { color: 0x1066ad } );
 
-                var icosahedron1 = new THREE.Mesh(geometry1, material);
-                scene.add(icosahedron1);
+                var box1 = new THREE.Mesh(geometry1, material);
+                scene.add(box1);
+
+                var wing1side1 = new THREE.Mesh(geometry2, material);
+                wing1side1.position.set( 1.265, -3.3, 0.0 ); // y = -3.3 for 1/2 of (5 + 1.2) + 0.2
+                scene.add(wing1side1);
+
+                var wing1side2 = new THREE.Mesh(geometry3, material);
+                wing1side2.position.set( 1.265, -3.3, 0.0 );
+                scene.add(wing1side2);
+
+                var wing2side1 = new THREE.Mesh(geometry4, material);
+                wing2side1.position.set( 1.265, 3.3, 0.0 );
+                scene.add(wing2side1);
+
+                var wing2side2 = new THREE.Mesh(geometry5, material);
+                wing2side2.position.set( 1.265, 3.3, 0.0 );
+                scene.add(wing2side2);
 
 				// Creates the gpu computation class and sets it up
 
@@ -260,7 +284,7 @@
 
 				var normalMap0 = gpuCompute.createTexture();
 
-				fillTexture( normalMap0, icosahedron1 );
+				fillTexture( normalMap0, box1 );
 
 				normalMapVariable = gpuCompute.addVariable( "normalMap", document.getElementById( 'normalMapFragmentShader' ).textContent, normalMap0 );
 
