@@ -124,9 +124,9 @@
 
 			void main()	{
                 
-                for(float i=0.;i<12.;i++) {
+                for(float i=0.;i<20.;i++) {
 
-                    reader = vec2(0.00001 + i/12.0, 0.5);
+                    reader = vec2(0.00001 + i/20.0, 0.5);
 
 				    normal = texture2D( normalTexture, reader );
 
@@ -178,7 +178,7 @@
 			import { GPUComputationRenderer } from './jsm/misc/GPUComputationRenderer.js';
 
 			// Texture width for simulation
-			var WIDTH = 12;
+			var WIDTH = 20;
 
 			// Water size in system units
 			var BOUNDS = 512;
@@ -284,7 +284,7 @@
 
 				var normalMap0 = gpuCompute.createTexture();
 
-				fillTexture( normalMap0, box1 );
+				fillTexture( normalMap0, box1, wing1side1, wing1side2, wing2side1, wing2side2 );
 
 				normalMapVariable = gpuCompute.addVariable( "normalMap", document.getElementById( 'normalMapFragmentShader' ).textContent, normalMap0 );
 
@@ -323,17 +323,65 @@
 
 			}
 
-			function fillTexture( texture, geometry1 ) {
+			function fillTexture( texture, geometry1, geometry2, geometry3, geometry4, geometry5 ) {
 
 				var pixels = texture.image.data;
 
 				var p = 0;
-				for ( var j = 0; j < WIDTH; j ++ ) {
+				for ( var j = 0; j < 12; j ++ ) {
 					
 
 					pixels[ p + 0 ] = geometry1.geometry.faces[j].normal.x;
 					pixels[ p + 1 ] = geometry1.geometry.faces[j].normal.y;
 					pixels[ p + 2 ] = geometry1.geometry.faces[j].normal.z;
+					pixels[ p + 3 ] = 0.00245437; //Manually defined area of one triangular face on geometry1, 4*pi/5120
+
+					p += 4;
+
+                }
+                
+                for ( var j = 0; j < 2; j ++ ) {
+					
+
+					pixels[ p + 0 ] = geometry2.geometry.faces[j].normal.x;
+					pixels[ p + 1 ] = geometry2.geometry.faces[j].normal.y;
+					pixels[ p + 2 ] = geometry2.geometry.faces[j].normal.z;
+					pixels[ p + 3 ] = 0.00245437; //Manually defined area of one triangular face on geometry1, 4*pi/5120
+
+					p += 4;
+
+                }
+                
+                for ( var j = 0; j < 2; j ++ ) {
+					
+
+					pixels[ p + 0 ] = geometry3.geometry.faces[j].normal.x;
+					pixels[ p + 1 ] = geometry3.geometry.faces[j].normal.y;
+					pixels[ p + 2 ] = geometry3.geometry.faces[j].normal.z;
+					pixels[ p + 3 ] = 0.00245437; //Manually defined area of one triangular face on geometry1, 4*pi/5120
+
+					p += 4;
+
+                }
+                
+                for ( var j = 0; j < 2; j ++ ) {
+					
+
+					pixels[ p + 0 ] = geometry4.geometry.faces[j].normal.x;
+					pixels[ p + 1 ] = geometry4.geometry.faces[j].normal.y;
+					pixels[ p + 2 ] = geometry4.geometry.faces[j].normal.z;
+					pixels[ p + 3 ] = 0.00245437; //Manually defined area of one triangular face on geometry1, 4*pi/5120
+
+					p += 4;
+
+                }
+                
+                for ( var j = 0; j < 2; j ++ ) {
+					
+
+					pixels[ p + 0 ] = geometry5.geometry.faces[j].normal.x;
+					pixels[ p + 1 ] = geometry5.geometry.faces[j].normal.y;
+					pixels[ p + 2 ] = geometry5.geometry.faces[j].normal.z;
 					pixels[ p + 3 ] = 0.00245437; //Manually defined area of one triangular face on geometry1, 4*pi/5120
 
 					p += 4;
